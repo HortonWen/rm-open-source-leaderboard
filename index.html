@@ -15,7 +15,20 @@
     color:var(--txt);font-family:"Microsoft YaHei","PingFang SC","Segoe UI",sans-serif;
     min-height:100vh;padding:36px 20px 80px;line-height:1.6;
   }
-  .wrap{max-width:1240px;margin:0 auto}
+  body{position:relative;overflow-x:hidden}
+  .bg-layer{position:fixed;inset:0;z-index:0;pointer-events:none}
+  .bg-layer .grid{position:absolute;inset:0;
+    background:
+      repeating-linear-gradient(90deg,rgba(58,100,152,.20) 0 1px,transparent 1px 48px),
+      repeating-linear-gradient(0deg,rgba(58,100,152,.20) 0 1px,transparent 1px 48px)}
+  .bg-layer .grid::after{content:"";position:absolute;inset:0;
+    background:
+      repeating-linear-gradient(90deg,rgba(110,165,215,.09) 0 1px,transparent 1px 240px),
+      repeating-linear-gradient(0deg,rgba(110,165,215,.09) 0 1px,transparent 1px 240px)}
+  .bg-layer svg.assy{position:absolute;left:50%;top:40px;transform:translateX(-50%);
+    width:min(1180px,98vw);opacity:.52;filter:drop-shadow(0 0 26px rgba(0,179,255,.14))}
+  .wrap{max-width:1240px;margin:0 auto;position:relative;z-index:1}
+  @media (max-width:960px){.bg-layer svg.assy{top:130px;opacity:.30}}
   header h1{font-size:30px;font-weight:800;letter-spacing:1px;margin-top:6px}
   header h1 span{color:var(--acc)}
   header h1 em{color:var(--red);font-style:normal}
@@ -104,6 +117,105 @@
 </style>
 </head>
 <body>
+<div class="bg-layer" aria-hidden="true">
+  <div class="grid"></div>
+  <svg class="assy" viewBox="0 0 1600 1000" xmlns="http://www.w3.org/2000/svg" font-family="'Microsoft YaHei','PingFang SC',sans-serif">
+    <rect x="18" y="18" width="1564" height="964" fill="none" stroke="#7fb3dd" stroke-width="2"/>
+    <path d="M18 46 V18 H46" fill="none" stroke="#7fb3dd" stroke-width="2"/>
+    <path d="M1554 18 H1582 V46" fill="none" stroke="#7fb3dd" stroke-width="2"/>
+    <path d="M1582 954 V982 H1554" fill="none" stroke="#7fb3dd" stroke-width="2"/>
+    <path d="M46 982 H18 V954" fill="none" stroke="#7fb3dd" stroke-width="2"/>
+    <text x="46" y="60" font-size="20" font-weight="700" fill="#bfe0f7" letter-spacing="2">ROBOMASTER · 机甲大师 开源贡献排行榜</text>
+    <text x="46" y="84" font-size="13" fill="#7fb3dd">PROJECT: OPEN SOURCE LEADERBOARD   |   REV A   |   SCALE 1:4</text>
+    <line x1="800" y1="104" x2="800" y2="872" stroke="#8fc3ef" stroke-width="1" stroke-dasharray="8 10" opacity=".4"/>
+    <g fill="none" stroke="#9cc7ee">
+      <circle cx="800" cy="300" r="46" stroke-width="1.6"/>
+      <circle cx="800" cy="300" r="30" stroke-width="1" stroke-dasharray="5 6"/>
+      <circle cx="800" cy="300" r="3.5" fill="#9cc7ee"/>
+      <line x1="800" y1="254" x2="800" y2="196" stroke-width="1.4"/>
+      <circle cx="800" cy="190" r="5" stroke-width="1.4"/>
+      <circle cx="800" cy="438" r="66" stroke-width="1.8"/>
+      <line x1="734" y1="438" x2="866" y2="438" stroke-width="1" stroke-dasharray="6 7" opacity=".6"/>
+      <line x1="800" y1="372" x2="800" y2="504" stroke-width="1" stroke-dasharray="6 7" opacity=".6"/>
+      <circle cx="800" cy="438" r="4" fill="#9cc7ee"/>
+      <path d="M764 504 L836 504 L822 542 L778 542 Z" stroke-width="1.4"/>
+      <rect x="866" y="412" width="332" height="20" stroke-width="1.6"/>
+      <rect x="866" y="446" width="332" height="20" stroke-width="1.6"/>
+      <rect x="1198" y="404" width="28" height="70" stroke-width="1.6"/>
+      <rect x="888" y="396" width="86" height="84" stroke-width="1.2" stroke-dasharray="6 6"/>
+      <rect x="600" y="640" width="400" height="120" rx="16" stroke-width="1.8"/>
+      <rect x="620" y="658" width="360" height="26" stroke-width="1.2"/>
+      <rect x="706" y="640" width="20" height="14" stroke-width="1.2"/>
+      <rect x="874" y="640" width="20" height="14" stroke-width="1.2"/>
+      <path d="M600 676 L556 722 L556 746 L600 700 Z" stroke-width="1.4"/>
+      <path d="M1000 676 L1044 722 L1044 746 L1000 700 Z" stroke-width="1.4"/>
+      <rect x="756" y="760" width="88" height="26" stroke-width="1.4"/>
+      <g stroke-width="1.8">
+        <circle cx="566" cy="586" r="54"/>
+        <circle cx="1034" cy="586" r="54"/>
+        <circle cx="566" cy="816" r="54"/>
+        <circle cx="1034" cy="816" r="54"/>
+      </g>
+      <g stroke-width="1" stroke-dasharray="5 6">
+        <circle cx="566" cy="586" r="22"/>
+        <circle cx="1034" cy="586" r="22"/>
+        <circle cx="566" cy="816" r="22"/>
+        <circle cx="1034" cy="816" r="22"/>
+      </g>
+      <g stroke-width="1.2">
+        <line x1="512" y1="586" x2="620" y2="586"/><line x1="566" y1="532" x2="566" y2="640"/>
+        <line x1="980" y1="586" x2="1088" y2="586"/><line x1="1034" y1="532" x2="1034" y2="640"/>
+        <line x1="512" y1="816" x2="620" y2="816"/><line x1="566" y1="762" x2="566" y2="870"/>
+        <line x1="980" y1="816" x2="1088" y2="816"/><line x1="1034" y1="762" x2="1034" y2="870"/>
+      </g>
+      <rect x="430" y="826" width="112" height="66" stroke-width="1.5"/>
+      <rect x="446" y="842" width="80" height="24" stroke-width="1" stroke-dasharray="4 5"/>
+      <line x1="452" y1="892" x2="452" y2="904" stroke-width="1.2"/>
+      <line x1="470" y1="892" x2="470" y2="904" stroke-width="1.2"/>
+      <line x1="488" y1="892" x2="488" y2="904" stroke-width="1.2"/>
+      <line x1="506" y1="892" x2="506" y2="904" stroke-width="1.2"/>
+      <line x1="524" y1="892" x2="524" y2="904" stroke-width="1.2"/>
+    </g>
+    <g fill="none" stroke="#ff9db4" stroke-width="1" opacity=".95">
+      <line x1="600" y1="652" x2="300" y2="656"/><circle cx="600" cy="652" r="2.5" fill="#ff9db4"/>
+      <line x1="1034" y1="816" x2="1210" y2="884"/><circle cx="1034" cy="816" r="2.5" fill="#ff9db4"/>
+      <line x1="734" y1="438" x2="470" y2="452"/><circle cx="734" cy="438" r="2.5" fill="#ff9db4"/>
+      <line x1="1198" y1="438" x2="1330" y2="470"/><circle cx="1198" cy="438" r="2.5" fill="#ff9db4"/>
+      <line x1="556" y1="734" x2="360" y2="766"/><circle cx="556" cy="734" r="2.5" fill="#ff9db4"/>
+      <line x1="754" y1="300" x2="520" y2="318"/><circle cx="754" cy="300" r="2.5" fill="#ff9db4"/>
+      <line x1="430" y1="859" x2="330" y2="880"/><circle cx="430" cy="859" r="2.5" fill="#ff9db4"/>
+    </g>
+    <g fill="#bfe0f7" font-size="15">
+      <text text-anchor="end" x="288" y="660">底盘 CHASSIS</text>
+      <text text-anchor="start" x="1218" y="888">麦轮 MECANUM WHEEL</text>
+      <text text-anchor="end" x="458" y="456">云台 GIMBAL</text>
+      <text text-anchor="start" x="1338" y="474">发射机构 LAUNCHER</text>
+      <text text-anchor="end" x="348" y="770">装甲板 ARMOR</text>
+      <text text-anchor="end" x="508" y="322">传感器 SENSOR</text>
+      <text text-anchor="end" x="318" y="884">主控板 MCU</text>
+    </g>
+    <g stroke="#ff9db4" stroke-width="1.2" fill="none">
+      <line x1="560" y1="924" x2="1040" y2="924"/>
+      <line x1="560" y1="916" x2="560" y2="932"/>
+      <line x1="1040" y1="916" x2="1040" y2="932"/>
+      <line x1="1420" y1="560" x2="1420" y2="800"/>
+      <line x1="1412" y1="560" x2="1428" y2="560"/>
+      <line x1="1412" y1="800" x2="1428" y2="800"/>
+    </g>
+    <text x="800" y="912" text-anchor="middle" fill="#ffb3c4" font-size="14">L 520</text>
+    <text x="1434" y="686" fill="#ffb3c4" font-size="14">H 380</text>
+    <g stroke="#7fb3dd" fill="none" stroke-width="1.2">
+      <rect x="1240" y="878" width="322" height="102"/>
+      <line x1="1240" y1="912" x2="1562" y2="912"/>
+      <line x1="1240" y1="946" x2="1562" y2="946"/>
+      <line x1="1384" y1="878" x2="1384" y2="912"/>
+    </g>
+    <text x="1256" y="900" font-size="15" font-weight="700" fill="#bfe0f7">RM-2106B 步兵机器人</text>
+    <text x="1256" y="932" font-size="12.5" fill="#9cc7ee">装配图 ASSEMBLY DRAWING</text>
+    <text x="1256" y="966" font-size="12.5" fill="#9cc7ee">比例 1:4 · 单位 mm · 2026-08</text>
+    <text x="1404" y="966" font-size="12.5" fill="#9cc7ee">制图 HORTONWEN</text>
+  </svg>
+</div>
 <div class="wrap">
 
   <header>
