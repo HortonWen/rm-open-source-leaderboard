@@ -125,7 +125,7 @@
 
   <section id="scoring">
     <h2>开源贡献评分体系</h2>
-    <p class="sec-note">综合得分 = 影响力 35% + 传播度 15% + 输出量 20% + 活跃度 10% + 多元性 10% + 社区输出 10%（各维度经对数缩放后归一化到 0-100）。</p>
+    <p class="sec-note">综合得分 = 影响力 35% + 传播度 15% + 输出量 20% + 活跃度 10% + 多元性 10% + 社区输出 10%（各维度按对数刻度折算为绝对 0-100 分；综合分 = 40 + 0.6×加权和，参与开源即有 40 分基础分）。</p>
     <div class="dims">
       <div class="dim"><h4>影响力 <span class="w">35%</span></h4><p>GitHub + Gitee 仓库总 Star 数（对数缩放）：被多少人收藏 / 引用。</p></div>
       <div class="dim"><h4>传播度 <span class="w">15%</span></h4><p>仓库总 Fork 数：被多少团队二次开发，代表实用性与社区扩散。</p></div>
@@ -169,7 +169,7 @@
 
   <section id="detail">
     <h2>战队详情与开源雷达</h2>
-    <p class="sec-note">点击排行榜任意一行查看。按大学视图显示该大学全部战队及其开源明细；雷达图为六维相对表现（0-100，越大越强）。</p>
+    <p class="sec-note">点击排行榜任意一行查看。按大学视图显示该大学全部战队及其开源明细；雷达图为六维绝对得分（对数刻度，0-100，越大越强）。</p>
     <div class="detail-grid">
       <div class="card"><div class="radar-wrap"><canvas id="radar"></canvas></div></div>
       <div class="card">
@@ -323,21 +323,19 @@ function computeUnis(){
 
 function computeUniScores(unis){
   if (!unis.length) return;
-  const log1 = xs => xs.map(x => x > 0 ? Math.log10(1 + x) : 0);
-  const norm = vals => { const lo = Math.min(...vals), hi = Math.max(...vals), rng = hi - lo; return rng === 0 ? vals.map(() => 0) : vals.map(v => (v - lo) / rng); };
+  const dim = (x, smax) => (x > 0 && smax > 1) ? Math.min(100, 100 * Math.log10(1 + x) / Math.log10(1 + smax)) : 0;
   const months = iso => { if (!iso) return 999; const d = new Date(String(iso).slice(0, 10)); const n = new Date('2026-08-05'); return (n.getFullYear() - d.getFullYear()) * 12 + (n.getMonth() - d.getMonth()); };
-  const impact = norm(log1(unis.map(u => u.stars)));
-  const spread = norm(log1(unis.map(u => u.forks)));
-  const output = norm(log1(unis.map(u => u.repo_count)));
-  const activity = norm(unis.map(u => u.latest ? Math.max(0, 1 - months(u.latest) / 24) : 0));
-  const diversity = norm(log1(unis.map(u => u.langs.size + u.seasons.size)));
-  const community = norm(log1(unis.map(u => u.bbs_count)));
-  const comps = unis.map((_, i) => 0.35 * impact[i] + 0.15 * spread[i] + 0.20 * output[i] + 0.10 * activity[i] + 0.10 * diversity[i] + 0.10 * community[i]);
-  const compsN = norm(comps);
-  unis.forEach((u, i) => {
-    u.parts = { impact: +impact[i].toFixed(1), spread: +spread[i].toFixed(1), output: +output[i].toFixed(1),
-                activity: +activity[i].toFixed(1), diversity: +diversity[i].toFixed(1), community: +community[i].toFixed(1) };
-    u.score = +compsN[i].toFixed(1);
+  unis.forEach(u => {
+    const impact = dim(u.stars, 600);
+    const spread = dim(u.forks, 160);
+    const output = dim(u.repo_count, 30);
+    const activity = u.latest ? 100 * Math.exp(-Math.max(0, months(u.latest)) / 36) : 0;
+    const diversity = dim(u.langs.size + u.seasons.size, 12);
+    const community = dim(u.bbs_count, 8);
+    const comp = 0.35 * impact + 0.15 * spread + 0.20 * output + 0.10 * activity + 0.10 * diversity + 0.10 * community;
+    u.parts = { impact: +impact.toFixed(1), spread: +spread.toFixed(1), output: +output.toFixed(1),
+                activity: +activity.toFixed(1), diversity: +diversity.toFixed(1), community: +community.toFixed(1) };
+    u.score = +(40 + 0.6 * comp).toFixed(1);
   });
   unis.sort((a, b) => b.score - a.score);
 }
