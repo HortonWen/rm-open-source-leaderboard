@@ -1,0 +1,703 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>RoboMaster 战队开源排行榜 · 开源贡献评分系统</title>
+<style>
+  :root{
+    --bg:#0a1120; --card:#111c31; --card2:#0e1830; --line:#203052;
+    --txt:#e6edf7; --mut:#8fa3bf; --acc:#00b3ff; --red:#ff3b6b; --gold:#f7c948;
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  body{
+    background:radial-gradient(1100px 520px at 85% -10%,#15233f 0%,var(--bg) 55%);
+    color:var(--txt);font-family:"Microsoft YaHei","PingFang SC","Segoe UI",sans-serif;
+    min-height:100vh;padding:36px 20px 80px;line-height:1.6;
+  }
+  .wrap{max-width:1240px;margin:0 auto}
+  header h1{font-size:30px;font-weight:800;letter-spacing:1px;margin-top:6px}
+  header h1 span{color:var(--acc)}
+  header h1 em{color:var(--red);font-style:normal}
+  .kicker{color:var(--mut);font-size:13px;letter-spacing:4px}
+  .sub{color:var(--mut);margin-top:10px;max-width:820px;font-size:14px}
+  .pills{margin-top:14px;display:flex;gap:10px;flex-wrap:wrap}
+  .pill{
+    padding:7px 14px;border-radius:999px;font-size:12.5px;
+    background:rgba(0,179,255,.08);border:1px solid rgba(0,179,255,.3);color:#a8d8ff;
+  }
+  .pill.warn{background:rgba(255,59,107,.1);border-color:rgba(255,59,107,.35);color:#ffb3c4}
+  section{margin-top:46px}
+  h2{font-size:21px;font-weight:700;display:flex;align-items:center;gap:10px;margin-bottom:6px}
+  h2::before{content:"";width:5px;height:20px;border-radius:3px;background:linear-gradient(180deg,var(--acc),var(--red))}
+  .sec-note{color:var(--mut);font-size:13px;margin-bottom:16px}
+  .card{background:linear-gradient(180deg,var(--card) 0%,var(--card2) 100%);border:1px solid var(--line);border-radius:14px;padding:20px}
+  .dims{display:grid;grid-template-columns:repeat(5,1fr);gap:12px}
+  .dim{background:rgba(0,179,255,.05);border:1px solid var(--line);border-radius:10px;padding:12px 14px}
+  .dim h4{font-size:14px;display:flex;justify-content:space-between;align-items:center}
+  .dim h4 .w{background:rgba(0,179,255,.15);color:var(--acc);font-size:11.5px;padding:2px 8px;border-radius:999px}
+  .dim p{color:var(--mut);font-size:12.5px;margin-top:6px}
+  .toolbar{display:flex;gap:12px;flex-wrap:wrap;align-items:center;margin-bottom:14px}
+  .search-box{flex:1;min-width:240px;display:flex;gap:8px}
+  .search-box input{
+    flex:1;background:#0c1730;border:1px solid var(--line);border-radius:10px;color:var(--txt);
+    padding:11px 14px;font-size:14px;outline:none;
+  }
+  .search-box input:focus{border-color:var(--acc)}
+  select{
+    background:#0c1730;border:1px solid var(--line);border-radius:10px;color:var(--txt);
+    padding:10px 12px;font-size:13.5px;outline:none;
+  }
+  .chips{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:14px}
+  .chip{
+    padding:6px 13px;border-radius:999px;border:1px solid var(--line);background:transparent;
+    color:var(--mut);font-size:12.5px;cursor:pointer;transition:.15s;
+  }
+  .chip:hover{color:var(--txt);border-color:var(--acc)}
+  .chip.on{background:rgba(0,179,255,.15);color:var(--acc);border-color:var(--acc)}
+  table{width:100%;border-collapse:collapse;font-size:13.5px}
+  .table-scroll{overflow-x:auto}
+  thead th{text-align:left;color:var(--mut);font-weight:600;font-size:12px;letter-spacing:1px;padding:10px 12px;border-bottom:1px solid var(--line);white-space:nowrap}
+  tbody td{padding:12px;border-bottom:1px solid rgba(32,48,82,.6);vertical-align:middle}
+  tbody tr{cursor:pointer;transition:background .15s}
+  tbody tr:hover{background:rgba(0,179,255,.05)}
+  tbody tr.active{background:rgba(0,179,255,.09);box-shadow:inset 3px 0 0 var(--acc)}
+  td.rk{font-size:17px;font-weight:800;width:48px}
+  td.reg{font-size:11.5px;color:var(--mut);white-space:nowrap}
+  td.nm{min-width:220px}
+  td.nm b{display:block;font-size:14.5px}
+  td.nm small{color:var(--mut);font-size:12px}
+  td.sc{min-width:120px}
+  .scbar{display:flex;align-items:center;gap:8px}
+  .scbar .bar{width:74px;height:7px;background:#1b2942;border-radius:4px;overflow:hidden}
+  .scbar .bar i{display:block;height:100%;border-radius:4px}
+  td.num{font-variant-numeric:tabular-nums;font-weight:700}
+  td.num small{color:var(--mut);font-weight:400}
+  .tag{font-size:11px;padding:2px 8px;border-radius:999px;background:rgba(143,163,191,.12);color:var(--mut);margin-left:6px}
+  .tag.new{background:rgba(0,179,255,.14);color:var(--acc)}
+  .detail-grid{display:grid;grid-template-columns:460px 1fr;gap:24px;align-items:start}
+  .radar-wrap{width:100%;aspect-ratio:1/1;max-width:460px;margin:0 auto;position:relative}
+  canvas#radar{width:100%;height:100%;display:block}
+  .detail-head{display:flex;align-items:center;gap:12px;flex-wrap:wrap}
+  .detail-head h3{font-size:22px;font-weight:800}
+  .detail-head small{color:var(--mut)}
+  .badge{font-size:12px;padding:3px 10px;border-radius:999px;background:rgba(0,179,255,.14);color:var(--acc);border:1px solid rgba(0,179,255,.3)}
+  .meta{display:flex;gap:16px;flex-wrap:wrap;margin:12px 0;color:var(--mut);font-size:13px}
+  .meta b{color:var(--txt);font-size:17px}
+  .repos{list-style:none;margin-top:10px}
+  .repos li{display:flex;justify-content:space-between;gap:10px;padding:8px 10px;border-radius:8px;font-size:12.5px}
+  .repos li:nth-child(odd){background:rgba(255,255,255,.025)}
+  .repos a{color:var(--acc);text-decoration:none;word-break:break-all}
+  .repos a:hover{text-decoration:underline}
+  .repos .r-meta{color:var(--mut);white-space:nowrap;flex-shrink:0}
+  .repos .desc{color:var(--mut);display:block;font-size:11.5px;margin-top:2px}
+  .score-line{font-size:34px;font-weight:800;color:var(--acc)}
+  .empty{color:var(--mut);padding:40px;text-align:center;font-size:14px}
+  footer{margin-top:56px;border-top:1px solid var(--line);padding-top:18px;color:var(--mut);font-size:12.5px}
+  footer a{color:var(--acc);text-decoration:none}
+  @media (max-width:960px){
+    .dims{grid-template-columns:repeat(2,1fr)}
+    .detail-grid{grid-template-columns:1fr}
+    header h1{font-size:24px}
+  }
+  @media (max-width:560px){.dims{grid-template-columns:1fr}}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <header>
+    <div class="kicker">ROBOMASTER · 开源生态观察</div>
+    <h1><span>RoboMaster 机甲大师</span> 战队<em>开源</em>排行榜</h1>
+    <p class="sub">
+      基于 GitHub、Gitee 与 RoboMaster 论坛开源专栏的战队开源贡献评估：影响力、传播度、输出量、活跃度、多元性、社区输出六个维度，
+      汇总真实星标 / Fork / 仓库 / 开源帖生成排行；支持搜索战队、仓库、赛季与来源筛选。
+    </p>
+    <div class="pills">
+      <span class="pill" id="statTeams"></span>
+      <span class="pill" id="statRepos"></span>
+      <span class="pill" id="statGitee"></span>
+      <span class="pill" id="statBbs"></span>
+      <span class="pill" id="statTime"></span>
+      <span class="pill warn">非官方数据：快照口径，仅作交流参考；论坛帖含 2022-2025 开源专栏优质帖</span>
+    </div>
+  </header>
+
+  <section id="scoring">
+    <h2>开源贡献评分体系</h2>
+    <p class="sec-note">综合得分 = 影响力 35% + 传播度 15% + 输出量 20% + 活跃度 10% + 多元性 10% + 社区输出 10%（各维度经对数缩放后归一化到 0-100）。</p>
+    <div class="dims">
+      <div class="dim"><h4>影响力 <span class="w">35%</span></h4><p>GitHub + Gitee 仓库总 Star 数（对数缩放）：被多少人收藏 / 引用。</p></div>
+      <div class="dim"><h4>传播度 <span class="w">15%</span></h4><p>仓库总 Fork 数：被多少团队二次开发，代表实用性与社区扩散。</p></div>
+      <div class="dim"><h4>输出量 <span class="w">20%</span></h4><p>公开仓库数量（GitHub + Gitee）：机械 / 电控 / 算法 / 文档各方向持续产出。</p></div>
+      <div class="dim"><h4>活跃度 <span class="w">10%</span></h4><p>最近更新距今时长：是否仍在维护、是否跟得上新赛季。</p></div>
+      <div class="dim"><h4>多元性 <span class="w">10%</span></h4><p>语言种类 + 覆盖赛季数：技术栈广度与参赛年限沉淀。</p></div>
+      <div class="dim"><h4>社区输出 <span class="w">10%</span></h4><p>RoboMaster 论坛开源专栏发帖数（算法 / 电控 / 机械 / AWARD 分享）。</p></div>
+    </div>
+  </section>
+
+  <section id="ranking">
+    <h2>开源贡献排行榜</h2>
+    <p class="sec-note" id="listInfo"></p>
+    <div class="card">
+      <div class="toolbar">
+        <div class="search-box">
+          <input id="q" type="search" placeholder="搜索学校 / 战队 / 仓库 / 赛季（如：交龙、RoboWalker、RM2024）">
+        </div>
+        <select id="sortSel">
+          <option value="score">按综合得分</option>
+          <option value="stars">按 Star 总数</option>
+          <option value="forks">按 Fork 总数</option>
+          <option value="repos">按仓库数</option>
+          <option value="recent">按最近更新</option>
+        </select>
+        <div class="chips" id="viewChips" style="margin-bottom:0">
+          <button class="chip on" data-v="uni">按大学</button>
+          <button class="chip" data-v="team">按战队</button>
+        </div>
+      </div>
+      <div class="chips" id="chips"></div>
+      <div class="chips" id="srcChips"></div>
+      <div class="table-scroll">
+        <table>
+          <thead id="thead"></thead>
+          <tbody id="tbody"></tbody>
+        </table>
+      </div>
+    </div>
+  </section>
+
+  <section id="detail">
+    <h2>战队详情与开源雷达</h2>
+    <p class="sec-note">点击排行榜任意一行查看。按大学视图显示该大学全部战队及其开源明细；雷达图为六维相对表现（0-100，越大越强）。</p>
+    <div class="detail-grid">
+      <div class="card"><div class="radar-wrap"><canvas id="radar"></canvas></div></div>
+      <div class="card">
+        <div class="detail-head">
+          <h3 id="dTeam"></h3>
+          <small id="dSchool"></small>
+          <span class="badge" id="dRank"></span>
+          <span class="badge" id="dRegion"></span>
+        </div>
+        <div class="score-line" id="dScore"></div>
+        <div class="meta">
+          <span>Star <b id="dStars">0</b></span>
+          <span>Fork <b id="dForks">0</b></span>
+          <span>仓库 <b id="dRepos">0</b></span>
+          <span>GitHub <b id="dGh">0</b></span>
+          <span>Gitee <b id="dGitee">0</b></span>
+          <span>论坛帖 <b id="dBbs">0</b></span>
+          <span>语言 <b id="dLangs">-</b></span>
+          <span id="dOrgs"></span>
+        </div>
+        <div id="dTeams"></div>
+        <div id="dParts"></div>
+        <ul class="repos" id="dRepoList"></ul>
+        <h4 style="margin:18px 0 6px;font-size:14px">RoboMaster 论坛开源帖</h4>
+        <ul class="repos" id="dBbsList"></ul>
+      </div>
+    </div>
+  </section>
+
+  <section id="coverage">
+    <h2>收录情况说明</h2>
+    <p class="sec-note">以下战队已确认参加 RoboMaster 超级对抗赛 / 高校联盟赛，但本次检索未发现其公开 GitHub 组织（开源内容可能发布在 Gitee、战队官网或未公开）。</p>
+    <div class="card" style="font-size:12.5px;color:var(--mut);line-height:2" id="missingBox"></div>
+  </section>
+
+  <section id="individuals">
+    <h2>个人开源贡献榜</h2>
+    <p class="sec-note">RoboMaster 生态中个人开发者公开仓库（按 Star 排序，Top 20）。</p>
+    <div class="card table-scroll">
+      <table>
+        <thead><tr><th>#</th><th>开发者</th><th>Star</th><th>Fork</th><th>仓库数</th><th>代表项目</th></tr></thead>
+        <tbody id="indBody"></tbody>
+      </table>
+    </div>
+  </section>
+
+  <section id="live">
+    <h2>实时检索 GitHub 开源内容</h2>
+    <p class="sec-note">直接调用 GitHub 搜索 API，检索任意关键词（战队名、赛季、机器人兵种等），结果实时展示。浏览器未登录有频率限制，超限稍后再试。</p>
+    <div class="card">
+      <div class="toolbar" style="margin-bottom:8px">
+        <div class="search-box">
+          <input id="liveQ" type="search" placeholder="例如：robomaster 哨兵 / RM2025 / 华南理工">
+          <button class="chip on" id="liveBtn" style="border-radius:10px">搜索</button>
+        </div>
+      </div>
+      <div class="table-scroll">
+        <table>
+          <thead><tr><th>仓库</th><th>描述</th><th>语言</th><th>Star</th><th>Fork</th><th>更新</th></tr></thead>
+          <tbody id="liveBody"></tbody>
+        </table>
+      </div>
+      <div id="liveMsg" class="empty" style="display:none"></div>
+    </div>
+  </section>
+
+  <footer>
+    数据快照：2026-08-05 抓取自 GitHub（搜索 API + 公开主页）、Gitee（API + 战队仓库）与 RoboMaster 论坛开源专栏（算法 / 电控 / 机械 / AWARD）。
+    同一战队的多个 GitHub 组织、GitHub/Gitee 镜像仓库已合并去重；论坛帖统计口径为 2022-2025 开源专栏优质帖。
+    评分模型为本站自建，非官方口径；已知未收录：无公开仓库或论坛帖记录的战队（部分开源在战队官网 / 其他平台）。
+    <br><br>
+    相关参考：<a href="https://bbs.robomaster.com/wiki/4577" target="_blank" rel="noopener">RoboMaster 算法开源专栏</a> ·
+    <a href="https://bbs.robomaster.com/wiki/4574" target="_blank" rel="noopener">电控开源专栏</a> ·
+    <a href="https://bbs.robomaster.com/wiki/4571" target="_blank" rel="noopener">机械开源专栏</a> ·
+    <a href="https://gitee.com" target="_blank" rel="noopener">Gitee</a> ·
+    <a href="https://github.com/topics/robomaster" target="_blank" rel="noopener">GitHub robomaster topic</a> ·
+    <a href="https://www.robomaster.com/zh-CN/robo/history" target="_blank" rel="noopener">RoboMaster 官方往届回顾</a>
+  </footer>
+</div>
+
+<script src="data.js"></script>
+<script>
+'use strict';
+const D = (typeof RM_DATA !== 'undefined') ? RM_DATA : {teams:[], individuals:[]};
+const TEAMS = D.teams || [];
+const IND = D.individuals || [];
+
+const REGIONS = ['全部','华北','东北','华东','华中','华南','西南','西北','港澳台','海外'];
+const SOURCES = ['全部来源','含GitHub','含Gitee','含论坛帖'];
+const PALETTE = ['#00b3ff','#ff3b6b','#36d399','#f7c948','#9b59ff','#14b8a6','#ff6b35','#0ea5e9','#e11d48','#22c55e','#8b5cf6','#f59e0b','#64748b','#06b6d4','#ec4899','#84cc16'];
+
+let state = { view:'uni', region:'全部', source:'全部来源', q:'', sort:'score', selected: TEAMS.length ? TEAMS[0].id : null, selectedUni: null };
+
+const $ = id => document.getElementById(id);
+const esc = s => String(s == null ? '' : s).replace(/[&<>"]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+
+function colorOf(i){ return PALETTE[i % PALETTE.length]; }
+function scoreColor(s){ return s >= 80 ? '#00b3ff' : s >= 50 ? '#36d399' : s >= 25 ? '#f7c948' : '#64748b'; }
+
+function visible(){
+  let list = TEAMS.filter(t => {
+    if (state.region !== '全部' && t.region !== state.region) return false;
+    if (state.source === '含GitHub' && !(t.gh_count > 0)) return false;
+    if (state.source === '含Gitee' && !(t.gitee_count > 0)) return false;
+    if (state.source === '含论坛帖' && !(t.bbs_count > 0)) return false;
+    if (state.q){
+      const hay = (t.school + ' ' + t.team + ' ' + t.orgs.join(' ') + ' ' + (t.languages||[]).join(' ') + ' ' + (t.seasons||[]).join(' ')).toLowerCase();
+      if (hay.indexOf(state.q.toLowerCase()) === -1) return false;
+    }
+    return true;
+  });
+  const bySort = {
+    score: (a,b) => b.score - a.score,
+    stars: (a,b) => b.stars - a.stars,
+    forks: (a,b) => b.forks - a.forks,
+    repos: (a,b) => b.repo_count - a.repo_count,
+    recent: (a,b) => String(b.latest||'').localeCompare(String(a.latest||''))
+  }[state.sort] || ((a,b) => b.score - a.score);
+  list.sort(bySort);
+  return list;
+}
+
+/* ---------- 大学聚合 ---------- */
+function computeUnis(){
+  const map = {};
+  TEAMS.forEach(t => {
+    const u = t.university || t.school;
+    const uni = map[u] || (map[u] = {
+      id: u, name: u, region: t.uni_region || t.region,
+      teams: [], stars: 0, forks: 0, repo_count: 0, gh_count: 0, gitee_count: 0, bbs_count: 0,
+      langs: new Set(), seasons: new Set(), latest: null,
+      repos: [], bbs_posts: [],
+    });
+    uni.teams.push(t);
+    uni.stars += t.stars;
+    uni.forks += t.forks;
+    uni.repo_count += t.repo_count;
+    uni.gh_count += t.gh_count;
+    uni.gitee_count += t.gitee_count;
+    uni.bbs_count += t.bbs_count;
+    (t.languages || []).forEach(l => uni.langs.add(l));
+    (t.seasons || []).forEach(s => uni.seasons.add(s));
+    if (t.latest && (!uni.latest || t.latest > uni.latest)) uni.latest = t.latest;
+    (t.repos || []).forEach(r => {
+      if (!uni.repos.find(x => x.full_name === r.full_name)) uni.repos.push(Object.assign({}, r, { team: t.team }));
+    });
+    (t.bbs_posts || []).forEach(p => uni.bbs_posts.push(Object.assign({}, p, { team: t.team })));
+  });
+  return Object.values(map);
+}
+
+function computeUniScores(unis){
+  if (!unis.length) return;
+  const log1 = xs => xs.map(x => x > 0 ? Math.log10(1 + x) : 0);
+  const norm = vals => { const lo = Math.min(...vals), hi = Math.max(...vals), rng = hi - lo; return rng === 0 ? vals.map(() => 0) : vals.map(v => (v - lo) / rng); };
+  const months = iso => { if (!iso) return 999; const d = new Date(String(iso).slice(0, 10)); const n = new Date('2026-08-05'); return (n.getFullYear() - d.getFullYear()) * 12 + (n.getMonth() - d.getMonth()); };
+  const impact = norm(log1(unis.map(u => u.stars)));
+  const spread = norm(log1(unis.map(u => u.forks)));
+  const output = norm(log1(unis.map(u => u.repo_count)));
+  const activity = norm(unis.map(u => u.latest ? Math.max(0, 1 - months(u.latest) / 24) : 0));
+  const diversity = norm(log1(unis.map(u => u.langs.size + u.seasons.size)));
+  const community = norm(log1(unis.map(u => u.bbs_count)));
+  const comps = unis.map((_, i) => 0.35 * impact[i] + 0.15 * spread[i] + 0.20 * output[i] + 0.10 * activity[i] + 0.10 * diversity[i] + 0.10 * community[i]);
+  const compsN = norm(comps);
+  unis.forEach((u, i) => {
+    u.parts = { impact: +impact[i].toFixed(1), spread: +spread[i].toFixed(1), output: +output[i].toFixed(1),
+                activity: +activity[i].toFixed(1), diversity: +diversity[i].toFixed(1), community: +community[i].toFixed(1) };
+    u.score = +compsN[i].toFixed(1);
+  });
+  unis.sort((a, b) => b.score - a.score);
+}
+
+let UNIS = computeUnis();
+computeUniScores(UNIS);
+
+function visibleUnis(){
+  let list = UNIS.filter(u => {
+    if (state.region !== '全部' && u.region !== state.region) return false;
+    if (state.source === '含GitHub' && !(u.gh_count > 0)) return false;
+    if (state.source === '含Gitee' && !(u.gitee_count > 0)) return false;
+    if (state.source === '含论坛帖' && !(u.bbs_count > 0)) return false;
+    if (state.q){
+      const hay = (u.name + ' ' + u.teams.map(t => t.school + ' ' + t.team).join(' ') + ' ' +
+                   u.repos.map(r => r.full_name).join(' ') + ' ' + [...u.langs].join(' ') + ' ' + [...u.seasons].join(' ')).toLowerCase();
+      if (hay.indexOf(state.q.toLowerCase()) === -1) return false;
+    }
+    return true;
+  });
+  const bySort = {
+    score: (a, b) => b.score - a.score,
+    stars: (a, b) => b.stars - a.stars,
+    forks: (a, b) => b.forks - a.forks,
+    repos: (a, b) => b.repo_count - a.repo_count,
+    recent: (a, b) => String(b.latest || '').localeCompare(String(a.latest || ''))
+  }[state.sort] || ((a, b) => b.score - a.score);
+  list.sort(bySort);
+  return list;
+}
+
+function renderViewChips(){
+  document.querySelectorAll('#viewChips .chip').forEach(el => {
+    el.classList.toggle('on', el.dataset.v === state.view);
+    el.onclick = () => {
+      state.view = el.dataset.v;
+      renderViewChips(); renderChips(); renderSrcChips(); renderTable(); updateDetail();
+    };
+  });
+}
+
+function renderChips(){
+  $('chips').innerHTML = REGIONS.map(r => {
+    const pool = state.view === 'uni' ? UNIS : TEAMS;
+    const n = r === '全部' ? pool.length : pool.filter(x => x.region === r).length;
+    return '<button class="chip' + (state.region === r ? ' on' : '') + '" data-r="' + r + '">' + r + ' <small>' + n + '</small></button>';
+  }).join('');
+  document.querySelectorAll('#chips .chip').forEach(el => {
+    el.onclick = () => { state.region = el.dataset.r; renderChips(); renderTable(); };
+  });
+}
+
+function renderSrcChips(){
+  const pool = state.view === 'uni' ? UNIS : TEAMS;
+  $('srcChips').innerHTML = SOURCES.map(s => {
+    const n = s === '全部来源' ? pool.length :
+      s === '含GitHub' ? pool.filter(t => t.gh_count > 0).length :
+      s === '含Gitee' ? pool.filter(t => t.gitee_count > 0).length :
+      pool.filter(t => t.bbs_count > 0).length;
+    return '<button class="chip' + (state.source === s ? ' on' : '') + '" data-s="' + s + '">' + s + ' <small>' + n + '</small></button>';
+  }).join('');
+  document.querySelectorAll('#srcChips .chip').forEach(el => {
+    el.onclick = () => { state.source = el.dataset.s; renderSrcChips(); renderTable(); };
+  });
+}
+
+function renderTable(){
+  if (state.view === 'uni') return renderUniTable();
+  const list = visible();
+  $('listInfo').textContent = '共 ' + list.length + ' 支战队（全量 ' + TEAMS.length + ' 支）。点击行查看该战队详情与雷达图。';
+  $('thead').innerHTML = '<tr><th>#</th><th>地区</th><th>战队</th><th>综合得分</th><th>Star</th><th>Fork</th><th>仓库</th><th>社区帖</th><th>活跃赛季</th></tr>';
+  if (!list.length){ $('tbody').innerHTML = '<tr><td colspan="9" class="empty">没有匹配的战队</td></tr>'; return; }
+  $('tbody').innerHTML = list.map((t, i) => {
+    const rank = i === 0 ? '🥇' : i === 1 ? '🥈' : i === 2 ? '🥉' : (i + 1);
+    const seasons = (t.seasons || []).slice(0, 4).join(' / ') || '—';
+    const badges = (t.gh_count > 0 ? '<span class="tag">GitHub</span>' : '') +
+                   (t.gitee_count > 0 ? '<span class="tag new">Gitee</span>' : '') +
+                   (t.bbs_count > 0 ? '<span class="tag" style="background:rgba(255,59,107,.14);color:#ff8fa5">论坛</span>' : '');
+    return '<tr data-id="' + t.id + '" class="' + (t.id === state.selected ? 'active' : '') + '">' +
+      '<td class="rk">' + rank + '</td>' +
+      '<td class="reg">' + esc(t.region) + '</td>' +
+      '<td class="nm"><b>' + esc(t.team) + '</b><small>' + esc(t.school) + badges + '</small></td>' +
+      '<td class="sc"><div class="scbar"><div class="bar"><i style="width:' + t.score.toFixed(0) + '%;background:' + scoreColor(t.score) + '"></i></div><b style="color:' + scoreColor(t.score) + '">' + t.score.toFixed(1) + '</b></div></td>' +
+      '<td class="num">' + t.stars + '</td>' +
+      '<td class="num">' + t.forks + '</td>' +
+      '<td class="num">' + (t.repo_count > 0 ? t.repo_count : '<small style="color:var(--mut)">无公开仓库</small>') + '</td>' +
+      '<td class="num">' + t.bbs_count + '</td>' +
+      '<td style="color:var(--mut);font-size:12px">' + esc(seasons) + '</td>' +
+    '</tr>';
+  }).join('');
+}
+
+function renderUniTable(){
+  const list = visibleUnis();
+  $('listInfo').textContent = '按大学合并排名：共 ' + list.length + ' 所大学（全量 ' + UNIS.length + ' 所，涵盖 ' + TEAMS.length + ' 支战队）。点击行查看该大学的战队与开源明细。';
+  $('thead').innerHTML = '<tr><th>#</th><th>地区</th><th>大学</th><th>综合得分</th><th>Star</th><th>Fork</th><th>仓库</th><th>社区帖</th><th>战队</th><th>活跃赛季</th></tr>';
+  if (!list.length){ $('tbody').innerHTML = '<tr><td colspan="10" class="empty">没有匹配的大学</td></tr>'; return; }
+  $('tbody').innerHTML = list.map((u, i) => {
+    const rank = i === 0 ? '🥇' : i === 1 ? '🥈' : i === 2 ? '🥉' : (i + 1);
+    const seasons = [...u.seasons].slice(0, 4).join(' / ') || '—';
+    const badges = (u.gh_count > 0 ? '<span class="tag">GitHub</span>' : '') +
+                   (u.gitee_count > 0 ? '<span class="tag new">Gitee</span>' : '') +
+                   (u.bbs_count > 0 ? '<span class="tag" style="background:rgba(255,59,107,.14);color:#ff8fa5">论坛</span>' : '');
+    return '<tr data-u="' + esc(u.id) + '" class="' + (u.id === state.selectedUni ? 'active' : '') + '">' +
+      '<td class="rk">' + rank + '</td>' +
+      '<td class="reg">' + esc(u.region) + '</td>' +
+      '<td class="nm"><b>' + esc(u.name) + '</b><small>' + u.teams.map(t => esc(t.team)).join('、') + badges + '</small></td>' +
+      '<td class="sc"><div class="scbar"><div class="bar"><i style="width:' + u.score.toFixed(0) + '%;background:' + scoreColor(u.score) + '"></i></div><b style="color:' + scoreColor(u.score) + '">' + u.score.toFixed(1) + '</b></div></td>' +
+      '<td class="num">' + u.stars + '</td>' +
+      '<td class="num">' + u.forks + '</td>' +
+      '<td class="num">' + u.repo_count + '</td>' +
+      '<td class="num">' + u.bbs_count + '</td>' +
+      '<td class="num">' + u.teams.length + '</td>' +
+      '<td style="color:var(--mut);font-size:12px">' + esc(seasons) + '</td>' +
+    '</tr>';
+  }).join('');
+}
+
+function drawRadar(ent, colorIdx){
+  const canvas = $('radar');
+  const wrap = canvas.parentElement;
+  const w = wrap.clientWidth, h = wrap.clientHeight;
+  if (w === 0 || h === 0) return;
+  const dpr = window.devicePixelRatio || 1;
+  canvas.width = w * dpr; canvas.height = h * dpr;
+  canvas.style.width = w + 'px'; canvas.style.height = h + 'px';
+  const ctx = canvas.getContext('2d');
+  ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+  ctx.clearRect(0, 0, w, h);
+  const t = ent || TEAMS.find(x => x.id === state.selected) || TEAMS[0];
+  const cx = w / 2, cy = h / 2, R = Math.min(w, h) / 2 - 46;
+  if (R < 40) return;
+  const keys = ['impact','spread','output','activity','diversity','community'];
+  const labels = ['影响力','传播度','输出量','活跃度','多元性','社区输出'];
+  const color = colorOf(colorIdx == null ? TEAMS.indexOf(t) : colorIdx);
+  for (let ring = 1; ring <= 5; ring++){
+    const rr = R * ring / 5;
+    ctx.beginPath();
+    for (let i = 0; i < 6; i++){
+      const a = -Math.PI / 2 + i * Math.PI * 2 / 6;
+      const x = cx + rr * Math.cos(a), y = cy + rr * Math.sin(a);
+      i ? ctx.lineTo(x, y) : ctx.moveTo(x, y);
+    }
+    ctx.closePath();
+    ctx.strokeStyle = ring === 5 ? 'rgba(148,163,184,.45)' : 'rgba(148,163,184,.16)';
+    ctx.stroke();
+  }
+  ctx.font = '12px "Microsoft YaHei",sans-serif';
+  ctx.fillStyle = '#cbd5e1';
+  for (let i = 0; i < 6; i++){
+    const a = -Math.PI / 2 + i * Math.PI * 2 / 6;
+    ctx.beginPath(); ctx.moveTo(cx, cy); ctx.lineTo(cx + R * Math.cos(a), cy + R * Math.sin(a));
+    ctx.strokeStyle = 'rgba(148,163,184,.13)'; ctx.stroke();
+    ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+    ctx.fillText(labels[i], cx + (R + 22) * Math.cos(a), cy + (R + 22) * Math.sin(a));
+  }
+  ctx.beginPath();
+  keys.forEach((k, i) => {
+    const a = -Math.PI / 2 + i * Math.PI * 2 / 6;
+    const rr = R * (t.parts[k] || 0) / 100;
+    const x = cx + rr * Math.cos(a), y = cy + rr * Math.sin(a);
+    i ? ctx.lineTo(x, y) : ctx.moveTo(x, y);
+  });
+  ctx.closePath();
+  ctx.fillStyle = 'rgba(0,179,255,.22)'; ctx.fill();
+  ctx.strokeStyle = color; ctx.lineWidth = 3; ctx.lineJoin = 'round'; ctx.stroke();
+  ctx.fillStyle = color; ctx.font = 'bold 11px "Microsoft YaHei",sans-serif';
+  keys.forEach((k, i) => {
+    const a = -Math.PI / 2 + i * Math.PI * 2 / 6;
+    const rr = R * (t.parts[k] || 0) / 100;
+    const x = cx + rr * Math.cos(a), y = cy + rr * Math.sin(a);
+    ctx.beginPath(); ctx.arc(x, y, 3, 0, Math.PI * 2); ctx.fill();
+    ctx.fillText(String((t.parts[k] || 0).toFixed(0)), x + Math.cos(a) * 15, y + Math.sin(a) * 15);
+  });
+}
+
+function updateDetail(){
+  if (state.view === 'uni') return updateUniDetail();
+  const t = TEAMS.find(x => x.id === state.selected);
+  if (!t) return;
+  const list = visible();
+  const idx = list.findIndex(x => x.id === t.id);
+  $('dTeam').textContent = t.team;
+  $('dSchool').textContent = t.school;
+  $('dRank').textContent = idx >= 0 ? '排行榜第 ' + (idx + 1) + ' 名' : '未在当前筛选内';
+  $('dRegion').textContent = t.region;
+  $('dScore').textContent = t.score.toFixed(1) + ' 分';
+  $('dStars').textContent = t.stars;
+  $('dForks').textContent = t.forks;
+  $('dRepos').textContent = t.repo_count;
+  $('dGh').textContent = t.gh_count;
+  $('dGitee').textContent = t.gitee_count;
+  $('dBbs').textContent = t.bbs_count;
+  $('dLangs').textContent = (t.languages || []).join(' / ') || '—';
+  $('dOrgs').innerHTML = (t.orgs || []).slice(0, 3).map(o =>
+    '<span>GitHub <a href="https://github.com/' + esc(o) + '" target="_blank" rel="noopener" style="color:var(--acc)">' + esc(o) + '</a></span>'
+  ).join('');
+  const keys = ['impact','spread','output','activity','diversity','community'];
+  const labels = ['影响力（Star）','传播度（Fork）','输出量（仓库数）','活跃度（更新频率）','多元性（语言×赛季）','社区输出（论坛帖）'];
+  $('dParts').innerHTML = keys.map((k, i) =>
+    '<div style="display:flex;align-items:center;gap:12px;margin-top:10px">' +
+      '<span style="width:130px;font-size:13px;color:var(--mut)">' + labels[i] + '</span>' +
+      '<div style="flex:1;height:8px;background:#1b2942;border-radius:4px;overflow:hidden"><div style="width:' + (t.parts[k]||0).toFixed(0) + '%;height:100%;background:' + colorOf(TEAMS.indexOf(t)) + '"></div></div>' +
+      '<span style="width:36px;text-align:right;font-size:13px;font-weight:700">' + (t.parts[k]||0).toFixed(0) + '</span>' +
+    '</div>').join('');
+  const repos = (t.repos || []).slice(0, 10);
+  $('dRepoList').innerHTML = repos.length ? repos.map(r =>
+    '<li><div><a href="' + (r.html_url || 'https://github.com/' + esc(r.full_name)) + '" target="_blank" rel="noopener">' + esc(r.full_name) + '</a>' +
+    (r.description ? '<span class="desc">' + esc(r.description) + '</span>' : '') +
+    '</div><span class="r-meta">[' + (r.platform === 'gitee' ? 'Gitee' : 'GitHub') + '] ★ ' + r.stars + ' · Fork ' + r.forks + (r.language ? ' · ' + esc(r.language) : '') + '</span></li>'
+  ).join('') : '<li style="color:var(--mut)">暂无仓库数据（该战队仓库未收录或尚未公开）</li>';
+  const bbs = (t.bbs_posts || []).slice(0, 8);
+  $('dBbsList').innerHTML = bbs.length ? bbs.map(p =>
+    '<li><div><a href="' + esc(p.url) + '" target="_blank" rel="noopener">' + esc(p.title) + '</a>' +
+    (p.direction ? '<span class="desc">' + esc(p.direction) + (p.createAt ? ' · ' + esc(String(p.createAt).slice(0, 10)) : '') + (p.views ? ' · ' + p.views + ' 浏览' : '') + '</span>' : '') +
+    '</div></li>').join('') : '<li style="color:var(--mut)">暂无论坛开源帖记录</li>';
+  drawRadar(t, TEAMS.indexOf(t));
+}
+
+function updateUniDetail(){
+  const uni = UNIS.find(u => u.id === state.selectedUni) || UNIS[0];
+  if (!uni) return;
+  const list = visibleUnis();
+  const idx = list.findIndex(u => u.id === uni.id);
+  const uniIdx = UNIS.indexOf(uni);
+  $('dTeam').textContent = uni.name;
+  $('dSchool').textContent = uni.teams.map(t => t.school).join('、');
+  $('dRank').textContent = idx >= 0 ? '大学榜第 ' + (idx + 1) + ' 名' : '未在当前筛选内';
+  $('dRegion').textContent = uni.region;
+  $('dScore').textContent = uni.score.toFixed(1) + ' 分';
+  $('dStars').textContent = uni.stars;
+  $('dForks').textContent = uni.forks;
+  $('dRepos').textContent = uni.repo_count;
+  $('dGh').textContent = uni.gh_count;
+  $('dGitee').textContent = uni.gitee_count;
+  $('dBbs').textContent = uni.bbs_count;
+  $('dLangs').textContent = [...uni.langs].join(' / ') || '—';
+  $('dOrgs').innerHTML = '<span>涵盖 <b>' + uni.teams.length + '</b> 支战队</span>';
+  $('dTeams').innerHTML = '<h4 style="margin:14px 0 6px;font-size:14px">所属战队（点击切换）</h4>' +
+    uni.teams.map(t =>
+      '<div style="display:flex;align-items:center;gap:10px;padding:7px 10px;border-radius:8px;background:rgba(255,255,255,.03);margin-top:6px;cursor:pointer" data-goto="' + esc(t.id) + '">' +
+      '<span class="dot" style="width:10px;height:10px;border-radius:50%;display:inline-block;background:' + scoreColor(t.score) + '"></span>' +
+      '<b style="font-size:13.5px">' + esc(t.team) + '</b>' +
+      '<small style="color:var(--mut);flex:1">' + esc(t.school) + '</small>' +
+      '<span style="font-size:12px;color:var(--mut)">★' + t.stars + ' · 仓' + t.repo_count + ' · 帖' + t.bbs_count + '</span>' +
+      '<span style="font-size:13px;font-weight:700;color:' + scoreColor(t.score) + '">' + t.score.toFixed(1) + '</span>' +
+      '</div>').join('');
+  document.querySelectorAll('#dTeams [data-goto]').forEach(el => {
+    el.onclick = () => {
+      state.view = 'team';
+      state.selected = el.dataset.goto;
+      renderViewChips(); renderChips(); renderSrcChips(); renderTable(); updateDetail();
+    };
+  });
+  const keys = ['impact','spread','output','activity','diversity','community'];
+  const labels = ['影响力（Star）','传播度（Fork）','输出量（仓库数）','活跃度（更新频率）','多元性（语言×赛季）','社区输出（论坛帖）'];
+  $('dParts').innerHTML = keys.map((k, i) =>
+    '<div style="display:flex;align-items:center;gap:12px;margin-top:10px">' +
+      '<span style="width:130px;font-size:13px;color:var(--mut)">' + labels[i] + '</span>' +
+      '<div style="flex:1;height:8px;background:#1b2942;border-radius:4px;overflow:hidden"><div style="width:' + (uni.parts[k]||0).toFixed(0) + '%;height:100%;background:' + colorOf(uniIdx) + '"></div></div>' +
+      '<span style="width:36px;text-align:right;font-size:13px;font-weight:700">' + (uni.parts[k]||0).toFixed(0) + '</span>' +
+    '</div>').join('');
+  const repos = uni.repos.slice(0, 12);
+  $('dRepoList').innerHTML = repos.length ? repos.map(r =>
+    '<li><div><span class="tag new" style="font-size:10px">' + esc(r.team) + '</span> ' +
+    '<a href="' + (r.html_url || 'https://github.com/' + esc(r.full_name)) + '" target="_blank" rel="noopener">' + esc(r.full_name) + '</a>' +
+    (r.description ? '<span class="desc">' + esc(r.description) + '</span>' : '') +
+    '</div><span class="r-meta">[' + (r.platform === 'gitee' ? 'Gitee' : 'GitHub') + '] ★ ' + r.stars + ' · Fork ' + r.forks + '</span></li>'
+  ).join('') : '<li style="color:var(--mut)">该大学暂无公开仓库记录</li>';
+  const bbs = uni.bbs_posts.slice(0, 10);
+  $('dBbsList').innerHTML = bbs.length ? bbs.map(p =>
+    '<li><div><span class="tag" style="font-size:10px;background:rgba(255,59,107,.14);color:#ff8fa5">' + esc(p.team) + '</span> ' +
+    '<a href="' + esc(p.url) + '" target="_blank" rel="noopener">' + esc(p.title) + '</a>' +
+    (p.direction ? '<span class="desc">' + esc(p.direction) + (p.createAt ? ' · ' + esc(String(p.createAt).slice(0, 10)) : '') + '</span>' : '') +
+    '</div></li>').join('') : '<li style="color:var(--mut)">该大学暂无论坛开源帖记录</li>';
+  drawRadar(uni, uniIdx);
+}
+
+function renderIndividuals(){
+  $('indBody').innerHTML = IND.slice(0, 20).map((p, i) =>
+    '<tr><td class="rk">' + (i + 1) + '</td>' +
+    '<td class="nm"><b>' + esc(p.name) + '</b><small><a href="' + esc(p.url) + '" target="_blank" rel="noopener" style="color:var(--acc)">@' + esc(p.login) + '</a></small></td>' +
+    '<td class="num">' + p.stars + '</td><td class="num">' + p.forks + '</td><td class="num">' + p.repo_count + '</td>' +
+    '<td style="font-size:12px;color:var(--mut)">' + (p.repos || []).slice(0, 3).map(r =>
+      '<a href="https://github.com/' + esc(r.full_name) + '" target="_blank" rel="noopener" style="color:var(--mut)">' + esc(r.name) + '</a>'
+    ).join(' · ') + '</td></tr>'
+  ).join('');
+}
+
+async function liveSearch(){
+  const kw = $('liveQ').value.trim();
+  const msg = $('liveMsg');
+  const body = $('liveBody');
+  body.innerHTML = '';
+  if (!kw){ msg.style.display = 'block'; msg.textContent = '请输入关键词'; return; }
+  msg.style.display = 'block'; msg.textContent = '检索中…';
+  try{
+    const url = 'https://api.github.com/search/repositories?q=' + encodeURIComponent(kw) + '&sort=stars&order=desc&per_page=30';
+    const res = await fetch(url, { headers: { 'Accept': 'application/vnd.github+json' } });
+    if (res.status === 403){
+      msg.textContent = 'GitHub 搜索频率受限（403），请稍后再试，或缩小关键词。';
+      return;
+    }
+    if (res.status === 422){
+      msg.textContent = '关键词无效，请换一个试试。';
+      return;
+    }
+    const data = await res.json();
+    const items = data.items || [];
+    msg.style.display = 'none';
+    if (!items.length){ body.innerHTML = '<tr><td colspan="6" class="empty">无结果</td></tr>'; return; }
+    body.innerHTML = items.map(r =>
+      '<tr>' +
+      '<td class="nm"><b><a href="' + esc(r.html_url) + '" target="_blank" rel="noopener" style="color:var(--acc)">' + esc(r.full_name) + '</a></b>' +
+      (r.description ? '<small style="color:var(--mut);display:block">' + esc(r.description).slice(0, 90) + '</small>' : '') + '</td>' +
+      '<td style="font-size:12px;color:var(--mut)">' + esc(r.language || '—') + '</td>' +
+      '<td class="num">' + r.stargazers_count + '</td>' +
+      '<td class="num">' + r.forks_count + '</td>' +
+      '<td style="font-size:12px;color:var(--mut)">' + esc((r.pushed_at || '').slice(0, 10)) + '</td>' +
+      '</tr>'
+    ).join('');
+  }catch(e){
+    msg.textContent = '请求失败：' + e.message;
+  }
+}
+
+$('q').addEventListener('input', e => { state.q = e.target.value; renderTable(); });
+$('sortSel').addEventListener('change', e => { state.sort = e.target.value; renderTable(); });
+$('tbody').addEventListener('click', e => {
+  const tr = e.target.closest('tr');
+  if (!tr) return;
+  if (state.view === 'uni' && tr.dataset.u){
+    state.selectedUni = tr.dataset.u;
+    renderTable(); updateDetail();
+  } else if (tr.dataset.id){
+    state.selected = tr.dataset.id;
+    renderTable(); updateDetail();
+  }
+});
+$('liveBtn').addEventListener('click', liveSearch);
+$('liveQ').addEventListener('keydown', e => { if (e.key === 'Enter') liveSearch(); });
+window.addEventListener('resize', drawRadar);
+
+$('statTeams').textContent = '大学 ' + UNIS.length + ' · 战队 ' + TEAMS.length;
+$('statRepos').textContent = 'GitHub 仓库 ' + D.repo_total + ' 个';
+$('statGitee').textContent = 'Gitee 仓库 ' + (D.gitee_repo_total || 0) + ' 个';
+$('statBbs').textContent = '论坛开源帖 ' + (D.bbs_post_total || 0) + ' 篇';
+$('statTime').textContent = '数据快照 ' + D.fetched_at;
+$('missingBox').textContent = (D.notable_missing || []).join(' ｜ ');
+
+if (UNIS.length) state.selectedUni = UNIS[0].id;
+renderViewChips();
+renderChips();
+renderSrcChips();
+renderTable();
+renderIndividuals();
+updateDetail();
+window.__rm = {
+  setView: v => { state.view = v; renderViewChips(); renderChips(); renderSrcChips(); renderTable(); updateDetail(); }
+};
+</script>
+</body>
+</html>
