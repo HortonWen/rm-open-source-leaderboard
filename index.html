@@ -11,12 +11,13 @@
   --rm:#e60012; --rm2:#ff2d3a; --gold:#f5b301;
 }
 *{box-sizing:border-box}
+html{background:#0a0d13}
 html,body{margin:0;padding:0}
 body{
   background:
     radial-gradient(1200px 500px at 20% -10%, rgba(230,0,18,.18), transparent 60%),
     radial-gradient(900px 400px at 90% 0%, rgba(245,179,1,.08), transparent 55%),
-    var(--bg);
+    transparent;
   color:var(--ink); font:15px/1.65 -apple-system,"Segoe UI","Microsoft YaHei",sans-serif;
   min-height:100vh;
 }
@@ -79,14 +80,27 @@ a:hover{text-decoration:underline;color:#a8ccff}
 .none{color:var(--muted)}
 footer{color:var(--muted);font-size:12px;text-align:center;padding:24px;border-top:1px solid var(--line);margin-top:20px}
 footer b{color:var(--rm2)}
-.wm{position:fixed;right:22px;bottom:18px;z-index:60;pointer-events:none;user-select:none;display:flex;align-items:center;gap:10px;opacity:.5;filter:drop-shadow(0 1px 1px rgba(0,0,0,.45))}
-.wm .bar{width:24px;height:1px;background:linear-gradient(90deg,var(--rm2),transparent)}
-.wm .inner{display:flex;flex-direction:column;line-height:1.35}
-.wm .zh{font-size:12px;letter-spacing:2.5px;color:#e6ecf3;font-weight:600}
-.wm .en{font-size:9px;letter-spacing:2px;color:#8894a3;text-transform:uppercase}
+
+/* ==== cyber effects ==== */
+body::after{content:"";position:fixed;inset:0;z-index:90;pointer-events:none;background:repeating-linear-gradient(0deg,rgba(0,0,0,.12) 0 1px,transparent 1px 3px);background-size:100% 4px;animation:scan 4s linear infinite}
+@keyframes scan{from{background-position-y:0}to{background-position-y:4px}}
+#fx{position:fixed;inset:0;z-index:-1;pointer-events:none}
+.energy{position:fixed;left:26px;bottom:22px;width:130px;height:130px;z-index:40;pointer-events:none;opacity:.45}
+.energy .r1{position:absolute;inset:0;border:1px dashed rgba(230,0,18,.65);border-radius:50%;animation:spin 16s linear infinite}
+.energy .r2{position:absolute;inset:18px;border:1px solid rgba(245,179,1,.35);border-radius:50%;animation:spin 11s linear infinite reverse}
+.energy .r3{position:absolute;inset:38px;border:1px dotted rgba(80,200,255,.4);border-radius:50%;animation:spin 8s linear infinite}
+.energy .c1{position:absolute;left:50%;top:50%;width:100%;height:1px;background:rgba(230,0,18,.35);transform:translate(-50%,-50%)}
+.energy .c2{position:absolute;left:50%;top:50%;height:100%;width:1px;background:rgba(230,0,18,.35);transform:translate(-50%,-50%)}
+.energy .dot{position:absolute;left:50%;top:50%;width:8px;height:8px;margin:-4px 0 0 -4px;border-radius:50%;background:#f5b301;box-shadow:0 0 10px #f5b301}
+@keyframes spin{to{transform:rotate(360deg)}}
+.hero h1{animation:glitch 5s infinite}
+@keyframes glitch{0%,90%,100%{transform:none;opacity:1}91%{transform:translateX(-2px)}92%{transform:translateX(2px)}93%{transform:translateX(-1px);opacity:.88}94%{transform:none;opacity:1}}
+@media(max-width:640px){.hero h1{font-size:25px}.emblem{width:64px;height:64px}.hero .en{letter-spacing:2px}.energy{width:90px;height:90px;left:14px;bottom:14px;opacity:.32}.stats{grid-template-columns:repeat(3,1fr)}.wrap{padding:0 12px}}
 </style>
 </head>
 <body>
+<canvas id="fx" aria-hidden="true"></canvas>
+<div class="energy" aria-hidden="true"><span class="r1"></span><span class="r2"></span><span class="r3"></span><span class="c1"></span><span class="c2"></span><span class="dot"></span></div>
 <header class="hero">
   <svg class="emblem" viewBox="0 0 100 100" fill="none">
     <polygon points="50,3 91,26 91,74 50,97 9,74 9,26" stroke="#e60012" stroke-width="3" fill="rgba(230,0,18,.08)"/>
@@ -94,7 +108,7 @@ footer b{color:var(--rm2)}
     <circle cx="50" cy="50" r="4" fill="#f5b301"/>
     <line x1="50" y1="10" x2="50" y2="90" stroke="#e60012" stroke-width="1" opacity=".6"/>
     <line x1="10" y1="50" x2="90" y2="50" stroke="#e60012" stroke-width="1" opacity=".6"/>
-    <text x="50" y="56" text-anchor="middle" fill="#fff" font-size="17" font-weight="800" font-family="Arial">RM</text>
+    <text x="50" y="56" text-anchor="middle" fill="#fff" font-size="23" font-weight="800" font-family="Arial">R</text>
   </svg>
   <h1>机甲大师开源资源目录</h1>
   <div class="en">RoboMaster Open-Source Resource Directory</div>
@@ -109,8 +123,7 @@ footer b{color:var(--rm2)}
   </div>
   <div id="app"></div>
 </div>
-<div class="wm" aria-hidden="true"><span class="bar"></span><span class="inner"><span class="zh">东南大学成贤学院计算机协会</span><span class="en">CXXY Computer Association</span></span></div>
-<footer>数据来源：GitHub + Gitee + RoboMaster 论坛（非官方整理）· <b>机甲大师</b> 开源资源目录 · 无排名机制</footer>
+<footer>数据来源：GitHub + Gitee + RoboMaster 论坛（非官方整理）· <b>机甲大师</b> 开源资源目录</footer>
 <script src="data.js"></script>
 <script>
 const CATS=[
@@ -178,6 +191,9 @@ function applyFilter(){
 renderStats();renderChips();render();
 document.getElementById("chips").addEventListener("click",e=>{const t=e.target.closest(".chip");if(!t)return;curDir=t.getAttribute("data-d");renderChips();applyFilter()});
 document.getElementById("q").addEventListener("input",applyFilter);
+</script>
+<script>
+(function(){var c=document.getElementById('fx'),x=c.getContext('2d'),P=[],i;function rs(){c.width=innerWidth;c.height=innerHeight;}rs();addEventListener('resize',rs);for(i=0;i<45;i++)P.push({x:Math.random()*innerWidth,y:Math.random()*innerHeight,r:Math.random()*1.6+0.4,vx:(Math.random()-.5)*.3,vy:(Math.random()-.5)*.3,a:Math.random()*.35+.12});(function t(){x.clearRect(0,0,c.width,c.height);for(var p of P){p.x+=p.vx;p.y+=p.vy;if(p.x<0)p.x=c.width;if(p.x>c.width)p.x=0;if(p.y<0)p.y=c.height;if(p.y>c.height)p.y=0;x.beginPath();x.arc(p.x,p.y,p.r,0,6.283);x.fillStyle='rgba(90,200,255,'+p.a+')';x.fill();}requestAnimationFrame(t);})();})();
 </script>
 </body>
 </html>
