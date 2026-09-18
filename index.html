@@ -79,6 +79,11 @@ a:hover{text-decoration:underline;color:#a8ccff}
 .none{color:var(--muted)}
 footer{color:var(--muted);font-size:12px;text-align:center;padding:24px;border-top:1px solid var(--line);margin-top:20px}
 footer b{color:var(--rm2)}
+.wm{position:fixed;right:22px;bottom:18px;z-index:60;pointer-events:none;user-select:none;display:flex;align-items:center;gap:10px;opacity:.5;filter:drop-shadow(0 1px 1px rgba(0,0,0,.45))}
+.wm .bar{width:24px;height:1px;background:linear-gradient(90deg,var(--rm2),transparent)}
+.wm .inner{display:flex;flex-direction:column;line-height:1.35}
+.wm .zh{font-size:12px;letter-spacing:2.5px;color:#e6ecf3;font-weight:600}
+.wm .en{font-size:9px;letter-spacing:2px;color:#8894a3;text-transform:uppercase}
 </style>
 </head>
 <body>
@@ -104,6 +109,7 @@ footer b{color:var(--rm2)}
   </div>
   <div id="app"></div>
 </div>
+<div class="wm" aria-hidden="true"><span class="bar"></span><span class="inner"><span class="zh">东南大学成贤学院计算机协会</span><span class="en">CXXY Computer Association</span></span></div>
 <footer>数据来源：GitHub + Gitee + RoboMaster 论坛（非官方整理）· <b>机甲大师</b> 开源资源目录 · 无排名机制</footer>
 <script src="data.js"></script>
 <script>
@@ -175,3 +181,4 @@ document.getElementById("q").addEventListener("input",applyFilter);
 </script>
 </body>
 </html>
+
