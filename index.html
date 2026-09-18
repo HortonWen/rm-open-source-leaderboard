@@ -8,11 +8,14 @@
 :root { --bg:#f6f7f9; --card:#fff; --ink:#1f2328; --muted:#6b7280; --line:#e5e7eb; --accent:#0f6cbd; }
 * { box-sizing:border-box; }
 body { margin:0; background:var(--bg); color:var(--ink); font:15px/1.6 -apple-system,"Segoe UI","Microsoft YaHei",sans-serif; }
-header { background:var(--card); border-bottom:1px solid var(--line); padding:22px 20px; }
+header { background:var(--card); border-bottom:1px solid var(--line); padding:22px 20px; position:sticky; top:0; z-index:5; }
 .wrap { max-width:1080px; margin:0 auto; padding:0 16px; }
 h1 { margin:0 0 6px; font-size:22px; }
 .sub { color:var(--muted); font-size:13px; }
-.search { width:100%; padding:10px 12px; border:1px solid var(--line); border-radius:8px; font-size:14px; margin:18px 0 4px; }
+.search { width:100%; padding:10px 12px; border:1px solid var(--line); border-radius:8px; font-size:14px; margin:14px 0 8px; }
+.chips { display:flex; flex-wrap:wrap; gap:6px; margin:6px 0; }
+.chip { border:1px solid var(--line); background:#fff; border-radius:999px; padding:4px 12px; font-size:13px; cursor:pointer; }
+.chip.active { background:var(--accent); color:#fff; border-color:var(--accent); }
 section { background:var(--card); border:1px solid var(--line); border-radius:10px; padding:16px 18px; margin:16px 0; }
 h2 { margin:0 0 10px; font-size:17px; border-left:4px solid var(--accent); padding-left:10px; }
 ul { list-style:none; margin:0; padding:0; }
@@ -22,6 +25,10 @@ a { color:var(--accent); text-decoration:none; }
 a:hover { text-decoration:underline; }
 .desc { color:var(--muted); font-size:13px; }
 .tag { display:inline-block; background:#eef2f7; color:var(--muted); border-radius:4px; padding:0 6px; font-size:12px; margin-left:6px; }
+.dir { display:inline-block; background:#eaf4ff; color:#0f6cbd; border-radius:4px; padding:0 6px; font-size:12px; margin-left:6px; }
+.lvl { display:inline-block; border-radius:4px; padding:0 6px; font-size:12px; margin-left:6px; }
+.lvl.newbie { background:#e8f7ee; color:#1a7f37; }
+.lvl.mature { background:#eef0ff; color:#4b47c9; }
 h3 { margin:12px 0 6px; font-size:15px; }
 .team-meta { color:var(--muted); font-size:13px; }
 .none { color:var(--muted); }
@@ -33,11 +40,12 @@ footer { color:var(--muted); font-size:12px; text-align:center; padding:20px; }
   <div class="wrap">
     <h1>机甲大师（RoboMaster）开源资源目录</h1>
     <div class="sub" id="subtitle">加载中…</div>
-    <input class="search" id="q" type="search" placeholder="搜索：战队 / 学校 / 仓库名 / 描述 / 分类…">
+    <input class="search" id="q" type="search" placeholder="搜索：战队 / 学校 / 仓库名 / 描述…">
+    <div class="chips" id="chips"></div>
   </div>
 </header>
 <div class="wrap" id="app"></div>
-<footer>数据来源：GitHub + Gitee + RoboMaster 论坛（非官方整理）· 已取消排名机制</footer>
+<footer>数据来源：GitHub + Gitee + RoboMaster 论坛（非官方整理）· 按方向分类 · 无排名机制</footer>
 <script src="data.js"></script>
 <script>
 const CATS = [
@@ -47,15 +55,21 @@ const CATS = [
   ["mechanical","机械 / 图纸 / 结构"],
   ["team_projects_extra","更多战队项目"],
 ];
+const DIRS = ["全部","视觉","ROS","电控","嵌入式","机械","仿真","官方SDK","教程","工具","通用"];
 const D = RM_DATA;
+let curDir = "全部";
 function esc(s){ return String(s==null?"":s).replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c])); }
 function repoHtml(r){
-  let h = `<li><a href="${esc(r.url)}" target="_blank" rel="noopener">${esc(r.name)}</a>`;
+  const dir = r.direction || "通用";
+  let h = `<li data-dir="${esc(dir)}"><a href="${esc(r.url)}" target="_blank" rel="noopener">${esc(r.name)}</a>`;
   if(r.description) h += ` <span class="desc">— ${esc(r.description)}</span>`;
   let tags = [];
   if(r.language) tags.push(r.language);
   tags.push(`${r.stars}★`);
   h += tags.map(t=>`<span class="tag">${esc(t)}</span>`).join("");
+  h += `<span class="dir">${esc(dir)}</span>`;
+  if(r.level==="新手") h += `<span class="lvl newbie">🟢新手</span>`;
+  else if(r.level==="成熟") h += `<span class="lvl mature">🔵成熟</span>`;
   h += `</li>`;
   return h;
 }
@@ -67,54 +81,62 @@ function render(){
   let out = "";
   for(const [key,title] of CATS){
     const arr = D[key] || [];
-    out += section(title, arr.map(r=>repoHtml(r)).join(""));
+    out += section(title, arr.map(repoHtml).join(""));
   }
-  // teams
   let teamHtml = "";
   (D.teams||[]).forEach((t,i)=>{
     const head = `${t.school} ${t.team}`.trim() || `战队 ${i+1}`;
     teamHtml += `<h3>${esc(head)} <span class="team-meta">${esc(t.region||"")}</span></h3>`;
     teamHtml += `<ul>${(t.repos||[]).map(repoHtml).join("")}</ul>`;
     (t.bbs_posts||[]).forEach(b=>{
-      teamHtml += `<li><a href="${esc(b.url)}" target="_blank" rel="noopener">📄 ${esc(b.title)}</a><span class="tag">论坛帖 ${esc(b.season||"")}</span></li>`;
+      teamHtml += `<li data-dir="论坛"><a href="${esc(b.url)}" target="_blank" rel="noopener">📄 ${esc(b.title)}</a><span class="tag">论坛帖 ${esc(b.season||"")}</span></li>`;
     });
   });
   out += section("战队开源", teamHtml);
-  // individuals
   let indHtml = "";
   (D.individuals||[]).forEach(x=>{
     indHtml += `<h3>${esc(x.name)}（${esc(x.login)}）</h3>`;
     indHtml += `<ul>${(x.repos||[]).map(repoHtml).join("")}</ul>`;
   });
   out += section("个人开源贡献", indHtml);
-  // missing
   if((D.notable_missing||[]).length){
     out += `<section><h2>未收录战队（暂无公开仓库/论坛帖）</h2><p class="none">${(D.notable_missing||[]).map(esc).join("、")}</p></section>`;
   }
   document.getElementById("app").innerHTML = out;
+  applyFilter();
 }
 function statsText(){
   const s = D.stats||{};
-  return `战队 ${s.teams} · 个人 ${s.individuals} · 官方 ${s.official} · 公司 ${s.companies} · 社区 ${s.community} · 机械 ${s.mechanical} · 仓库总数 ${s.repos_total}`;
+  const dirs = s.directions||{};
+  return `战队 ${s.teams} · 个人 ${s.individuals} · 仓库 ${s.repos_total} · 新手 ${s.newbie} · 成熟 ${s.mature}　|　方向：视觉 ${dirs["视觉"]||0} / ROS ${dirs["ROS"]||0} / 嵌入式 ${dirs["嵌入式"]||0} / 电控 ${dirs["电控"]||0} / 机械 ${dirs["机械"]||0}`;
+}
+function renderChips(){
+  document.getElementById("chips").innerHTML = DIRS.map(d=>`<span class="chip${d===curDir?" active":""}" data-d="${esc(d)}">${esc(d)}</span>`).join("");
+}
+function applyFilter(){
+  const kw = (document.getElementById("q").value||"").trim().toLowerCase();
+  document.querySelectorAll("#app li").forEach(li=>{
+    const dir = li.getAttribute("data-dir") || "";
+    const dirOk = curDir==="全部" || dir===curDir;
+    const kwOk = !kw || li.textContent.toLowerCase().includes(kw);
+    li.style.display = (dirOk && kwOk) ? "" : "none";
+  });
+  document.querySelectorAll("#app section").forEach(sec=>{
+    const any = [...sec.querySelectorAll("li")].some(li=>li.style.display!=="none");
+    sec.style.display = any ? "" : "none";
+  });
 }
 document.getElementById("subtitle").textContent = statsText();
+renderChips();
 render();
-document.getElementById("q").addEventListener("input", function(e){
-  const kw = e.target.value.trim().toLowerCase();
-  const all = document.querySelectorAll("#app li");
-  all.forEach(li=>{
-    const txt = li.textContent.toLowerCase();
-    li.style.display = txt.includes(kw) ? "" : "none";
-  });
-  if(kw){
-    document.querySelectorAll("#app section").forEach(sec=>{
-      const any = [...sec.querySelectorAll("li")].some(li=>li.style.display!=="none");
-      sec.style.display = any ? "" : "none";
-    });
-  } else {
-    document.querySelectorAll("#app section").forEach(sec=>sec.style.display="");
-  }
+document.getElementById("chips").addEventListener("click", function(e){
+  const t = e.target.closest(".chip");
+  if(!t) return;
+  curDir = t.getAttribute("data-d");
+  renderChips();
+  applyFilter();
 });
+document.getElementById("q").addEventListener("input", applyFilter);
 </script>
 </body>
 </html>
