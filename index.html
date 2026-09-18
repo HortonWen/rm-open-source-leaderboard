@@ -3,140 +3,175 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>机甲大师（RoboMaster）开源资源目录</title>
+<title>机甲大师开源资源目录 · RoboMaster</title>
 <style>
-:root { --bg:#f6f7f9; --card:#fff; --ink:#1f2328; --muted:#6b7280; --line:#e5e7eb; --accent:#0f6cbd; }
-* { box-sizing:border-box; }
-body { margin:0; background:var(--bg); color:var(--ink); font:15px/1.6 -apple-system,"Segoe UI","Microsoft YaHei",sans-serif; }
-header { background:var(--card); border-bottom:1px solid var(--line); padding:22px 20px; position:sticky; top:0; z-index:5; }
-.wrap { max-width:1080px; margin:0 auto; padding:0 16px; }
-h1 { margin:0 0 6px; font-size:22px; }
-.sub { color:var(--muted); font-size:13px; }
-.search { width:100%; padding:10px 12px; border:1px solid var(--line); border-radius:8px; font-size:14px; margin:14px 0 8px; }
-.chips { display:flex; flex-wrap:wrap; gap:6px; margin:6px 0; }
-.chip { border:1px solid var(--line); background:#fff; border-radius:999px; padding:4px 12px; font-size:13px; cursor:pointer; }
-.chip.active { background:var(--accent); color:#fff; border-color:var(--accent); }
-section { background:var(--card); border:1px solid var(--line); border-radius:10px; padding:16px 18px; margin:16px 0; }
-h2 { margin:0 0 10px; font-size:17px; border-left:4px solid var(--accent); padding-left:10px; }
-ul { list-style:none; margin:0; padding:0; }
-li { padding:7px 0; border-bottom:1px dashed var(--line); }
-li:last-child { border-bottom:none; }
-a { color:var(--accent); text-decoration:none; }
-a:hover { text-decoration:underline; }
-.desc { color:var(--muted); font-size:13px; }
-.tag { display:inline-block; background:#eef2f7; color:var(--muted); border-radius:4px; padding:0 6px; font-size:12px; margin-left:6px; }
-.dir { display:inline-block; background:#eaf4ff; color:#0f6cbd; border-radius:4px; padding:0 6px; font-size:12px; margin-left:6px; }
-.lvl { display:inline-block; border-radius:4px; padding:0 6px; font-size:12px; margin-left:6px; }
-.lvl.newbie { background:#e8f7ee; color:#1a7f37; }
-.lvl.mature { background:#eef0ff; color:#4b47c9; }
-h3 { margin:12px 0 6px; font-size:15px; }
-.team-meta { color:var(--muted); font-size:13px; }
-.none { color:var(--muted); }
-footer { color:var(--muted); font-size:12px; text-align:center; padding:20px; }
+:root{
+  --bg:#0a0d13; --bg2:#10141d; --card:#151a24; --card2:#1a202c;
+  --ink:#e8edf4; --muted:#97a3b4; --line:#242c3a;
+  --rm:#e60012; --rm2:#ff2d3a; --gold:#f5b301;
+}
+*{box-sizing:border-box}
+html,body{margin:0;padding:0}
+body{
+  background:
+    radial-gradient(1200px 500px at 20% -10%, rgba(230,0,18,.18), transparent 60%),
+    radial-gradient(900px 400px at 90% 0%, rgba(245,179,1,.08), transparent 55%),
+    var(--bg);
+  color:var(--ink); font:15px/1.65 -apple-system,"Segoe UI","Microsoft YaHei",sans-serif;
+  min-height:100vh;
+}
+body::before{
+  content:""; position:fixed; inset:0; pointer-events:none; opacity:.05;
+  background-image:linear-gradient(rgba(255,255,255,.6) 1px,transparent 1px),linear-gradient(90deg,rgba(255,255,255,.6) 1px,transparent 1px);
+  background-size:42px 42px;
+}
+.wrap{max-width:1100px;margin:0 auto;padding:0 18px}
+
+/* HERO */
+.hero{position:relative;padding:38px 0 22px;text-align:center;border-bottom:1px solid var(--line);
+  background:linear-gradient(180deg, rgba(230,0,18,.12), transparent);}
+.emblem{width:84px;height:84px;margin:0 auto 14px;filter:drop-shadow(0 0 18px rgba(230,0,18,.55));animation:pulse 3s ease-in-out infinite}
+@keyframes pulse{0%,100%{transform:scale(1)}50%{transform:scale(1.06)}}
+.hero h1{margin:0;font-size:34px;letter-spacing:2px;font-weight:900;
+  background:linear-gradient(180deg,#fff,#ff8a93);-webkit-background-clip:text;background-clip:text;color:transparent;}
+.hero .en{margin-top:2px;font-size:13px;letter-spacing:4px;color:var(--rm2);text-transform:uppercase;font-weight:600}
+.hero .sub{margin-top:10px;color:var(--muted);font-size:13px;max-width:720px;margin-left:auto;margin-right:auto}
+.rule{height:3px;width:220px;margin:16px auto 0;border-radius:2px;
+  background:linear-gradient(90deg,transparent,var(--rm2),transparent)}
+
+/* STATS */
+.stats{display:grid;grid-template-columns:repeat(5,1fr);gap:10px;margin:20px 0}
+.stat{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:12px 6px;text-align:center}
+.stat .n{font-size:22px;font-weight:800;color:#fff}
+.stat .l{font-size:12px;color:var(--muted);margin-top:2px}
+.stat.red .n{color:var(--rm2)} .stat.gold .n{color:var(--gold)}
+@media(max-width:640px){.stats{grid-template-columns:repeat(3,1fr)}}
+
+/* STICKY TOOLBAR */
+.toolbar{position:sticky;top:0;z-index:10;background:rgba(10,13,19,.9);backdrop-filter:blur(8px);
+  border-bottom:1px solid var(--line);padding:12px 0}
+.search{width:100%;padding:11px 14px;border:1px solid var(--line);border-radius:10px;font-size:14px;
+  background:var(--card);color:var(--ink);outline:none}
+.search:focus{border-color:var(--rm2);box-shadow:0 0 0 3px rgba(230,0,18,.18)}
+.chips{display:flex;flex-wrap:wrap;gap:7px;margin-top:10px}
+.chip{border:1px solid var(--line);background:var(--card);color:var(--muted);border-radius:999px;
+  padding:5px 13px;font-size:13px;cursor:pointer;transition:.15s}
+.chip:hover{border-color:var(--rm2);color:#fff}
+.chip.active{background:linear-gradient(135deg,var(--rm),var(--rm2));color:#fff;border-color:transparent}
+
+/* SECTIONS */
+section{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:18px 20px;margin:18px 0}
+h2{margin:0 0 12px;font-size:18px;display:flex;align-items:center;gap:8px}
+h2::before{content:"";width:5px;height:20px;border-radius:2px;background:linear-gradient(var(--rm),var(--rm2))}
+h3{margin:16px 0 8px;font-size:15px;color:#fff}
+h3 .tm{color:var(--muted);font-size:12px;font-weight:400;margin-left:6px}
+ul{list-style:none;margin:0;padding:0}
+li{padding:8px 0;border-bottom:1px dashed var(--line)}
+li:last-child{border-bottom:none}
+a{color:#7fb4ff;text-decoration:none}
+a:hover{text-decoration:underline;color:#a8ccff}
+.desc{color:var(--muted);font-size:13px}
+.tag{display:inline-block;background:#202938;color:var(--muted);border-radius:4px;padding:1px 7px;font-size:12px;margin-left:6px}
+.dir{display:inline-block;border-radius:4px;padding:1px 7px;font-size:12px;margin-left:6px;font-weight:600}
+.lvl{display:inline-block;border-radius:4px;padding:1px 7px;font-size:12px;margin-left:6px}
+.lvl.newbie{background:rgba(34,197,94,.15);color:#4ade80}
+.lvl.mature{background:rgba(99,102,241,.18);color:#a5b4fc}
+.none{color:var(--muted)}
+footer{color:var(--muted);font-size:12px;text-align:center;padding:24px;border-top:1px solid var(--line);margin-top:20px}
+footer b{color:var(--rm2)}
 </style>
 </head>
 <body>
-<header>
-  <div class="wrap">
-    <h1>机甲大师（RoboMaster）开源资源目录</h1>
-    <div class="sub" id="subtitle">加载中…</div>
-    <input class="search" id="q" type="search" placeholder="搜索：战队 / 学校 / 仓库名 / 描述…">
+<header class="hero">
+  <svg class="emblem" viewBox="0 0 100 100" fill="none">
+    <polygon points="50,3 91,26 91,74 50,97 9,74 9,26" stroke="#e60012" stroke-width="3" fill="rgba(230,0,18,.08)"/>
+    <circle cx="50" cy="50" r="27" stroke="#ff2d3a" stroke-width="2"/>
+    <circle cx="50" cy="50" r="4" fill="#f5b301"/>
+    <line x1="50" y1="10" x2="50" y2="90" stroke="#e60012" stroke-width="1" opacity=".6"/>
+    <line x1="10" y1="50" x2="90" y2="50" stroke="#e60012" stroke-width="1" opacity=".6"/>
+    <text x="50" y="56" text-anchor="middle" fill="#fff" font-size="17" font-weight="800" font-family="Arial">RM</text>
+  </svg>
+  <h1>机甲大师开源资源目录</h1>
+  <div class="en">RoboMaster Open-Source Resource Directory</div>
+  <p class="sub">汇总战队 / 个人 / DJI 官方 / 第三方公司在 GitHub · Gitee · RoboMaster 论坛的开源代码、图纸与项目</p>
+  <div class="rule"></div>
+</header>
+<div class="wrap">
+  <div class="stats" id="stats"></div>
+  <div class="toolbar">
+    <input class="search" id="q" type="search" placeholder="🔍 搜索：战队 / 学校 / 仓库名 / 描述…">
     <div class="chips" id="chips"></div>
   </div>
-</header>
-<div class="wrap" id="app"></div>
-<footer>数据来源：GitHub + Gitee + RoboMaster 论坛（非官方整理）· 按方向分类 · 无排名机制</footer>
+  <div id="app"></div>
+</div>
+<footer>数据来源：GitHub + Gitee + RoboMaster 论坛（非官方整理）· <b>机甲大师</b> 开源资源目录 · 无排名机制</footer>
 <script src="data.js"></script>
 <script>
-const CATS = [
-  ["official","官方资源（DJI / RoboMaster）"],
-  ["companies","第三方公司"],
-  ["community","社区框架与工具"],
-  ["mechanical","机械 / 图纸 / 结构"],
-  ["team_projects_extra","更多战队项目"],
+const CATS=[
+  ["official","🛡️ 官方资源（DJI / RoboMaster）"],
+  ["companies","🏢 第三方公司"],
+  ["community","🧩 社区框架与工具"],
+  ["mechanical","⚙️ 机械 / 图纸 / 结构"],
+  ["team_projects_extra","🚀 更多战队项目"]
 ];
-const DIRS = ["全部","视觉","ROS","电控","嵌入式","机械","仿真","官方SDK","教程","工具","通用"];
-const D = RM_DATA;
-let curDir = "全部";
-function esc(s){ return String(s==null?"":s).replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c])); }
+const DIRS=["全部","视觉","ROS","电控","嵌入式","机械","仿真","官方SDK","教程","工具","通用"];
+const DIR_COLOR={"视觉":"#c084fc","ROS":"#2dd4bf","电控":"#fb923c","嵌入式":"#facc15","机械":"#f87171","仿真":"#38bdf8","官方SDK":"#fb7185","教程":"#4ade80","工具":"#94a3b8","通用":"#64748b","论坛":"#e879f9"};
+const D=RM_DATA; let curDir="全部";
+function esc(s){return String(s==null?"":s).replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]))}
 function repoHtml(r){
-  const dir = r.direction || "通用";
-  let h = `<li data-dir="${esc(dir)}"><a href="${esc(r.url)}" target="_blank" rel="noopener">${esc(r.name)}</a>`;
-  if(r.description) h += ` <span class="desc">— ${esc(r.description)}</span>`;
-  let tags = [];
-  if(r.language) tags.push(r.language);
-  tags.push(`${r.stars}★`);
-  h += tags.map(t=>`<span class="tag">${esc(t)}</span>`).join("");
-  h += `<span class="dir">${esc(dir)}</span>`;
-  if(r.level==="新手") h += `<span class="lvl newbie">🟢新手</span>`;
-  else if(r.level==="成熟") h += `<span class="lvl mature">🔵成熟</span>`;
-  h += `</li>`;
-  return h;
+  const dir=r.direction||"通用";
+  let h=`<li data-dir="${esc(dir)}"><a href="${esc(r.url)}" target="_blank" rel="noopener">${esc(r.name)}</a>`;
+  if(r.description)h+=` <span class="desc">— ${esc(r.description)}</span>`;
+  let t=[];
+  if(r.language)t.push(`<span class="tag">${esc(r.language)}</span>`);
+  t.push(`<span class="tag">⭐ ${r.stars}</span>`);
+  h+=t.join("");
+  h+=`<span class="dir" style="background:${DIR_COLOR[dir]||"#64748b"}22;color:${DIR_COLOR[dir]||"#94a3b8"}">${esc(dir)}</span>`;
+  if(r.level==="新手")h+=`<span class="lvl newbie">🟢 新手</span>`;
+  else if(r.level==="成熟")h+=`<span class="lvl mature">🔵 成熟</span>`;
+  h+=`</li>`; return h;
 }
-function section(title, itemsHtml){
-  if(!itemsHtml) return "";
-  return `<section><h2>${esc(title)}</h2><ul>${itemsHtml}</ul></section>`;
+function section(title,html){return html?`<section><h2>${esc(title)}</h2><ul>${html}</ul></section>`:""}
+function renderStats(){
+  const s=D.stats||{};
+  document.getElementById("stats").innerHTML=`
+    <div class="stat red"><div class="n">${s.teams}</div><div class="l">🏫 战队</div></div>
+    <div class="stat"><div class="n">${s.individuals}</div><div class="l">👤 个人</div></div>
+    <div class="stat gold"><div class="n">${s.repos_total}</div><div class="l">📦 仓库</div></div>
+    <div class="stat"><div class="n">${s.newbie}</div><div class="l">🟢 新手友好</div></div>
+    <div class="stat"><div class="n">${s.mature}</div><div class="l">🔵 成熟</div></div>`;
 }
 function render(){
-  let out = "";
-  for(const [key,title] of CATS){
-    const arr = D[key] || [];
-    out += section(title, arr.map(repoHtml).join(""));
-  }
-  let teamHtml = "";
+  let out="";
+  for(const [k,title] of CATS)out+=section(title,(D[k]||[]).map(repoHtml).join(""));
+  let th="";
   (D.teams||[]).forEach((t,i)=>{
-    const head = `${t.school} ${t.team}`.trim() || `战队 ${i+1}`;
-    teamHtml += `<h3>${esc(head)} <span class="team-meta">${esc(t.region||"")}</span></h3>`;
-    teamHtml += `<ul>${(t.repos||[]).map(repoHtml).join("")}</ul>`;
-    (t.bbs_posts||[]).forEach(b=>{
-      teamHtml += `<li data-dir="论坛"><a href="${esc(b.url)}" target="_blank" rel="noopener">📄 ${esc(b.title)}</a><span class="tag">论坛帖 ${esc(b.season||"")}</span></li>`;
-    });
+    const head=`${t.school} ${t.team}`.trim()||`战队 ${i+1}`;
+    th+=`<h3>🎓 ${esc(head)} <span class="tm">${esc(t.region||"")}</span></h3><ul>${(t.repos||[]).map(repoHtml).join("")}</ul>`;
+    (t.bbs_posts||[]).forEach(b=>{th+=`<li data-dir="论坛"><a href="${esc(b.url)}" target="_blank" rel="noopener">📄 ${esc(b.title)}</a><span class="tag">论坛帖 ${esc(b.season||"")}</span></li>`});
   });
-  out += section("战队开源", teamHtml);
-  let indHtml = "";
-  (D.individuals||[]).forEach(x=>{
-    indHtml += `<h3>${esc(x.name)}（${esc(x.login)}）</h3>`;
-    indHtml += `<ul>${(x.repos||[]).map(repoHtml).join("")}</ul>`;
-  });
-  out += section("个人开源贡献", indHtml);
-  if((D.notable_missing||[]).length){
-    out += `<section><h2>未收录战队（暂无公开仓库/论坛帖）</h2><p class="none">${(D.notable_missing||[]).map(esc).join("、")}</p></section>`;
-  }
-  document.getElementById("app").innerHTML = out;
-  applyFilter();
+  out+=section("🏫 战队开源",th);
+  let ih="";
+  (D.individuals||[]).forEach(x=>{ih+=`<h3>👤 ${esc(x.name)} <span class="tm">${esc(x.login)}</span></h3><ul>${(x.repos||[]).map(repoHtml).join("")}</ul>`});
+  out+=section("👤 个人开源贡献",ih);
+  if((D.notable_missing||[]).length)out+=`<section><h2>🚫 未收录战队</h2><p class="none">${(D.notable_missing||[]).map(esc).join("、")}</p></section>`;
+  document.getElementById("app").innerHTML=out; applyFilter();
 }
-function statsText(){
-  const s = D.stats||{};
-  const dirs = s.directions||{};
-  return `战队 ${s.teams} · 个人 ${s.individuals} · 仓库 ${s.repos_total} · 新手 ${s.newbie} · 成熟 ${s.mature}　|　方向：视觉 ${dirs["视觉"]||0} / ROS ${dirs["ROS"]||0} / 嵌入式 ${dirs["嵌入式"]||0} / 电控 ${dirs["电控"]||0} / 机械 ${dirs["机械"]||0}`;
-}
-function renderChips(){
-  document.getElementById("chips").innerHTML = DIRS.map(d=>`<span class="chip${d===curDir?" active":""}" data-d="${esc(d)}">${esc(d)}</span>`).join("");
-}
+function renderChips(){document.getElementById("chips").innerHTML=DIRS.map(d=>`<span class="chip${d===curDir?" active":""}" data-d="${esc(d)}">${esc(d)}</span>`).join("")}
 function applyFilter(){
-  const kw = (document.getElementById("q").value||"").trim().toLowerCase();
+  const kw=(document.getElementById("q").value||"").trim().toLowerCase();
   document.querySelectorAll("#app li").forEach(li=>{
-    const dir = li.getAttribute("data-dir") || "";
-    const dirOk = curDir==="全部" || dir===curDir;
-    const kwOk = !kw || li.textContent.toLowerCase().includes(kw);
-    li.style.display = (dirOk && kwOk) ? "" : "none";
+    const dir=li.getAttribute("data-dir")||"";
+    const ok=(curDir==="全部"||dir===curDir)&&(!kw||li.textContent.toLowerCase().includes(kw));
+    li.style.display=ok?"":"none";
   });
   document.querySelectorAll("#app section").forEach(sec=>{
-    const any = [...sec.querySelectorAll("li")].some(li=>li.style.display!=="none");
-    sec.style.display = any ? "" : "none";
+    sec.style.display=[...sec.querySelectorAll("li")].some(li=>li.style.display!=="none")?"":"none";
   });
 }
-document.getElementById("subtitle").textContent = statsText();
-renderChips();
-render();
-document.getElementById("chips").addEventListener("click", function(e){
-  const t = e.target.closest(".chip");
-  if(!t) return;
-  curDir = t.getAttribute("data-d");
-  renderChips();
-  applyFilter();
-});
-document.getElementById("q").addEventListener("input", applyFilter);
+renderStats();renderChips();render();
+document.getElementById("chips").addEventListener("click",e=>{const t=e.target.closest(".chip");if(!t)return;curDir=t.getAttribute("data-d");renderChips();applyFilter()});
+document.getElementById("q").addEventListener("input",applyFilter);
 </script>
 </body>
 </html>
